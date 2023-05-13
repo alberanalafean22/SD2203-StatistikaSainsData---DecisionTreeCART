@@ -1,0 +1,106 @@
+---
+title: "Tugas Besar SSD"
+author: "Tugas Besar SSD"
+date: "2023-05-11"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+data <- read.csv("BankChurners.csv") #dataset menggunakan data Problem Churner Kartu Kredit di sebuah Bank
+head(data)
+```
+```{r}
+data <- read.csv("BankChurners.csv")
+#mengubah kolom tertentu ke faktor dan numerik
+data<- data%>% select(-CLIENTNUM,-Avg_Open_To_Buy,-Avg_Utilization_Ratio,-Total_Trans_Amt, -Total_Trans_Ct)
+data$Customer_Age <- as.numeric(data$Customer_Age)
+data$Gender <- as.factor(data$Gender)
+data$Dependent_count <- as.numeric(data$Dependent_count)
+data$Education_Level <- as.factor(data$Education_Level)
+data$Income_Category <- as.factor(data$Income_Category)
+data$Marital_Status <- as.factor(data$Marital_Status)
+data$Card_Category <- as.factor(data$Card_Category)
+data$Months_on_book <- as.numeric(data$Months_on_book)
+data$Total_Relationship_Count <- as.numeric(data$Total_Relationship_Count)
+data$Months_Inactive_12_mon <- as.numeric(data$Months_Inactive_12_mon)
+data$Contacts_Count_12_mon <- as.numeric(data$Contacts_Count_12_mon)
+data
+```
+
+
+```{r}
+nrow(data)
+ncol(data)-1 
+```
+
+
+```{r}
+sum(is.na(data))
+```
+
+
+```{r}
+set.seed(145)
+train <- sample(1:nrow(data), .4*nrow(data))
+data.train = data[train, ]
+data.test = data[-train, ]
+```
+
+```{r}
+#Decision tree untuk target pada Month on Book Kasus Churn kartu Kredit di Bank
+library(rpart)
+library(rpart.plot)
+
+# membuat model decision tree
+fit <- rpart(Months_on_book ~ ., data = data.train)
+
+# membuat plot pohon keputusan 
+rpart.plot(fit,type = 5, box.col = c("blue", "green"), fallen.leaves = FALSE)
+```
+
+```{r}
+#MSE regression tree
+pred.data <- predict(fit, data.test)
+MSETR <- mean((data.test$Months_on_book - pred.data)^2)
+paste("Test MSE of tree model = ", MSETR)
+```
+```{r}
+summary(fit)
+```
+```{r}
+# Menghitung akurasi model
+threshold <- 40 # threshold untuk mengklasifikasikan hasil prediksi
+
+pred_class <- ifelse(pred.data < threshold, "0", "1")
+
+actual_class <- ifelse(data.test$Months_on_book < threshold, "0", "1")
+
+accuracy <- sum(pred_class == actual_class) / length(actual_class)
+
+print(paste0("Akurasi model: ", round(accuracy, 2)))
+
+```
+
+```{r}
+#Decision tree untuk target pada Income Category Kasus Churn kartu Kredit di Bank
+library(rpart)
+library(rpart.plot)
+
+# membuat model decision tree
+fit <- rpart(Income_Category ~ ., data = data.train)
+
+# membuat plot pohon keputusan 
+rpart.plot(fit,type = 5, box.col = c("blue", "green"), fallen.leaves = FALSE)
+
+```
+
+```{r}
+#Decision tree untuk target pada Credit Limit Kasus Churn kartu Kredit di Bank
+fit <- rpart(Credit_Limit~ ., data = data.train)
+# membuat plot pohon keputusan dengan kotak-kotak berwarna
+rpart.plot(fit,type = 5, box.col = c("blue", "green"), fallen.leaves = FALSE)
+```
+
+
+
