@@ -1,6 +1,6 @@
 ---
-title: "Tugas Besar SSD"
-author: "Tugas Besar SSD"
+title: "Decision Tree"
+author: "Alber Analafean"
 date: "2023-05-11"
 output: html_document
 ---
@@ -25,7 +25,7 @@ data$Months_on_book <- as.numeric(data$Months_on_book)
 data$Total_Relationship_Count <- as.numeric(data$Total_Relationship_Count)
 data$Months_Inactive_12_mon <- as.numeric(data$Months_Inactive_12_mon)
 data$Contacts_Count_12_mon <- as.numeric(data$Contacts_Count_12_mon)
-data
+head(data)
 ```
 
 
@@ -36,11 +36,12 @@ ncol(data)-1
 
 
 ```{r}
-sum(is.na(data))
+sum(is.na(data)) #check data missing value
 ```
 
 
 ```{r}
+#membagi data training & data testing
 set.seed(145)
 train <- sample(1:nrow(data), .4*nrow(data))
 data.train = data[train, ]
@@ -66,7 +67,7 @@ MSETR <- mean((data.test$Months_on_book - pred.data)^2)
 paste("Test MSE of tree model = ", MSETR)
 ```
 ```{r}
-summary(fit)
+summary(fit) #ringkasan cart pada target months_on_book
 ```
 ```{r}
 # Menghitung akurasi model
@@ -95,12 +96,21 @@ rpart.plot(fit,type = 5, box.col = c("blue", "green"), fallen.leaves = FALSE)
 
 ```
 
+
+```{r}
+summary(fit) #ringkasan cart pada target Income_Category
+```
+
 ```{r}
 #Decision tree untuk target pada Credit Limit Kasus Churn kartu Kredit di Bank
-fit <- rpart(Credit_Limit~ ., data = data.train)
+fit <- rpart(Credit_Limit~ .-Income_Category, data = data.train)
 # membuat plot pohon keputusan dengan kotak-kotak berwarna
 rpart.plot(fit,type = 5, box.col = c("blue", "green"), fallen.leaves = FALSE)
 ```
+```{r}
+summary(fit) #ringkasan cart pada target Credit_Limit
+```
+
 
 
 
